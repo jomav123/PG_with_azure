@@ -1,0 +1,33 @@
+# Photo Gallery
+
+A small Flask web app for creating and managing a personal photo gallery.
+It supports adding, browsing, editing, replacing, and deleting photos.
+
+## Run locally
+
+1. Create and activate a virtual environment once per terminal session:
+
+   ```powershell
+   py -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+
+   If the prompt already shows `(.venv)`, it is active; do not activate it again.
+
+2. Install dependencies and initialize the local SQLite database (first run):
+
+   ```powershell
+   pip install -r requirements.txt
+   flask --app app init-db
+   ```
+
+3. Start the app directly:
+
+   ```powershell
+   python app.py
+   ```
+
+4. Open <http://127.0.0.1:5000>.
+
+Uploaded photos and the SQLite database are stored in the ignored `instance/`
+folder. Supported image types are JPG, PNG, GIF, and WEBP, up to 16 MB each.

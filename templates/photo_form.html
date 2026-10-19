@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} · Still & Story{% endblock %}
+{% block content %}
+  <section class="form-page">
+    <a class="back-link" href="{{ url_for('index') }}">← Back to gallery</a>
+    <div class="form-card">
+      <p class="eyebrow">Your collection</p>
+      <h1>{{ page_title }}</h1>
+      <p class="form-intro">Add a few details to remember this moment.</p>
+
+      <form method="post" enctype="multipart/form-data" class="photo-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label for="title">Photo title</label>
+        <input id="title" name="title" type="text" maxlength="120" required
+               placeholder="Give this photo a name"
+               value="{{ request.form.get('title', photo.title if photo else '') }}">
+
+        <label for="description">Caption <span>Optional</span></label>
+        <textarea id="description" name="description" rows="4"
+                  placeholder="Add a note about this photo">{{ request.form.get('description', photo.description if photo else '') }}</textarea>
+
+        {% if photo %}
+          <img class="current-image"
+               src="{{ url_for('uploaded_file', filename=photo.filename) }}"
+               alt="{{ photo.title }}">
+          <label for="image">Replace photo <span>Optional</span></label>
+        {% else %}
+          <label for="image">Choose a photo</label>
+        {% endif %}
+        <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.gif,.webp"
+               {% if not photo %}required{% endif %}>
+        <p class="help-text">JPG, PNG, GIF, or WEBP · Up to 16 MB</p>
+
+        <div class="form-actions">
+          <button class="button" type="submit">Save photo</button>
+          <a class="cancel-link" href="{{ url_for('index') }}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}

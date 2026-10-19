@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Photo Gallery · Still & Story{% endblock %}
+{% block content %}
+  <section class="welcome">
+    <p class="eyebrow">A place for your moments</p>
+    <h1>Your photo gallery</h1>
+    <p class="welcome-copy">Collect the memories you want to keep close.</p>
+  </section>
+
+  {% if photos %}
+    <section class="gallery" aria-label="Your photos">
+      {% for photo in photos %}
+        <article class="photo-card">
+          <img src="{{ url_for('uploaded_file', filename=photo.filename) }}" alt="{{ photo.title }}">
+          <div class="photo-info">
+            <h2>{{ photo.title }}</h2>
+            {% if photo.description %}
+              <p class="description">{{ photo.description }}</p>
+            {% endif %}
+            <div class="photo-actions">
+              <a href="{{ url_for('edit_photo', photo_id=photo.id) }}">Edit</a>
+              <form method="post" action="{{ url_for('delete_photo', photo_id=photo.id) }}"
+                    onsubmit="return confirm('Delete this photo?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="delete-button" type="submit">Delete</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section class="empty-state">
+      <div class="empty-icon" aria-hidden="true">+</div>
+      <h2>Your gallery starts here</h2>
+      <p>Add a photo and it will appear here.</p>
+      <a class="button" href="{{ url_for('create_photo') }}">Add your first photo</a>
+    </section>
+  {% endif %}
+{% endblock %}
