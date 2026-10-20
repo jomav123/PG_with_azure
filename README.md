@@ -14,9 +14,10 @@ It supports adding, browsing, editing, replacing, and deleting photos.
 
    If the prompt already shows `(.venv)`, it is active; do not activate it again.
 
-2. Install dependencies and initialize the local SQLite database (first run):
+2. Start PostgreSQL, then install dependencies and initialize the gallery table:
 
    ```powershell
+   docker compose up -d db
    pip install -r requirements.txt
    flask --app app init-db
    ```
@@ -29,5 +30,7 @@ It supports adding, browsing, editing, replacing, and deleting photos.
 
 4. Open <http://127.0.0.1:5000>.
 
-Uploaded photos and the SQLite database are stored in the ignored `instance/`
-folder. Supported image types are JPG, PNG, GIF, and WEBP, up to 16 MB each.
+Database connection settings are loaded from the ignored `.env` file.
+PostgreSQL uses port `5432`; Flask serves the web app on port `5000`. Uploaded
+photos are stored in `instance/uploads/`. Supported image types are JPG, PNG,
+GIF, and WEBP, up to 16 MB each.
