@@ -43,9 +43,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     instance_path = Path(app.instance_path)
     app.config.from_mapping(
         SECRET_KEY="local-development-key",
-        SQLALCHEMY_DATABASE_URI=os.environ.get(
-            "DATABASE_URL", f"sqlite:///{instance_path / 'gallery.sqlite'}"
-        ),
+        SQLALCHEMY_DATABASE_URI=f"sqlite:///{instance_path / 'gallery.sqlite'}",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MAX_CONTENT_LENGTH=MAX_UPLOAD_BYTES,
         UPLOAD_FOLDER=str(instance_path / "uploads"),
