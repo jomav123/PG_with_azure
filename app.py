@@ -10,6 +10,8 @@ from flask import Flask, flash, redirect, render_template, request, send_from_di
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import String, Text
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -43,13 +45,14 @@ def create_app(test_config: dict | None = None) -> Flask:
     instance_path = Path(app.instance_path)
     app.config.from_mapping(
         SECRET_KEY="local-development-key",
-        SQLALCHEMY_DATABASE_URI=f"sqlite:///{instance_path / 'gallery.sqlite'}",
+        SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL"),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MAX_CONTENT_LENGTH=MAX_UPLOAD_BYTES,
         UPLOAD_FOLDER=str(instance_path / "uploads"),
     )
     if test_config:
         app.config.update(test_config)
+    require_postgres_database(app)
 
     instance_path.mkdir(parents=True, exist_ok=True)
     Path(app.config["UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
@@ -139,6 +142,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     @app.cli.command("init-db")
     def init_db() -> None:
         """Create the photo gallery database table."""
+        require_postgres_database(app)
         with app.app_context():
             db.create_all()
         print("Photo gallery database is ready.")
@@ -168,10 +172,29 @@ def _remove_image(filename: str, upload_folder: str) -> None:
         image_path.unlink()
 
 
+def require_postgres_database(app: Flask) -> None:
+    database_url = app.config.get("SQLALCHEMY_DATABASE_URI")
+    if not isinstance(database_url, str) or not database_url.strip():
+        raise RuntimeError(
+            "Set DATABASE_URL to a PostgreSQL connection URL before starting this app."
+        )
+    try:
+        parsed_url = make_url(database_url)
+    except ArgumentError as error:
+        raise RuntimeError(
+            "DATABASE_URL must be a valid PostgreSQL connection URL."
+        ) from error
+    if parsed_url.get_backend_name() != "postgresql":
+        raise RuntimeError("DATABASE_URL must use a PostgreSQL connection URL.")
+    if not parsed_url.database:
+        raise RuntimeError("DATABASE_URL must include a PostgreSQL database name.")
+
+
 app = create_app()
 
 
 if __name__ == "__main__":
+    require_postgres_database(app)
     app.run(
         debug=True,
         host="127.0.0.1",

@@ -1,17 +1,34 @@
+import os
 from io import BytesIO
 
 import pytest
+from sqlalchemy.engine import make_url
 
-from app import Photo, create_app, db
+from app import Photo, create_app, db, require_postgres_database
 
 
 @pytest.fixture()
 def client(tmp_path):
+    database_url = os.environ.get("TEST_DATABASE_URL")
+    if not database_url:
+        pytest.fail("Set TEST_DATABASE_URL to a dedicated PostgreSQL test database.")
+    parsed_url = make_url(database_url)
+    if parsed_url.get_backend_name() != "postgresql":
+        pytest.fail("TEST_DATABASE_URL must use PostgreSQL.")
+    if not parsed_url.database or not parsed_url.database.endswith("_test"):
+        pytest.fail("TEST_DATABASE_URL must target a database whose name ends in _test.")
+    app_database_url = os.environ.get("DATABASE_URL")
+    if (
+        app_database_url
+        and parsed_url.database == make_url(app_database_url).database
+    ):
+        pytest.fail("TEST_DATABASE_URL must not point to the application database.")
+
     app = create_app(
         {
             "TESTING": True,
             "SECRET_KEY": "test-secret-key",
-            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{tmp_path / 'gallery.sqlite'}",
+            "SQLALCHEMY_DATABASE_URI": database_url,
             "UPLOAD_FOLDER": str(tmp_path / "uploads"),
         }
     )
@@ -27,6 +44,16 @@ def client(tmp_path):
 def _csrf_token(client):
     response = client.get("/photos/new")
     return response.text.split('name="csrf_token" value="')[1].split('"')[0]
+
+
+def test_create_app_rejects_non_postgres_database(tmp_path):
+    with pytest.raises(RuntimeError, match="must use a PostgreSQL"):
+        create_app(
+            {
+                "SQLALCHEMY_DATABASE_URI": "mysql://localhost/gallery",
+                "UPLOAD_FOLDER": str(tmp_path / "uploads"),
+            }
+        )
 
 
 def test_gallery_shows_empty_state(client):

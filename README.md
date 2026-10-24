@@ -14,7 +14,8 @@ It supports adding, browsing, editing, replacing, and deleting photos.
 
    If the prompt already shows `(.venv)`, it is active; do not activate it again.
 
-2. Start PostgreSQL, then install dependencies and initialize the gallery table:
+2. Start the Docker PostgreSQL database, install dependencies, and initialize
+   the gallery table:
 
    ```powershell
    docker compose up -d db
@@ -30,7 +31,25 @@ It supports adding, browsing, editing, replacing, and deleting photos.
 
 4. Open <http://127.0.0.1:5000>.
 
-Database connection settings are loaded from the ignored `.env` file.
+The app reads its PostgreSQL connection URL from `DATABASE_URL` in the ignored
+`.env` file and requires PostgreSQL; it has no other database backend.
 PostgreSQL uses port `5432`; Flask serves the web app on port `5000`. Uploaded
 photos are stored in `instance/uploads/`. Supported image types are JPG, PNG,
 GIF, and WEBP, up to 16 MB each.
+
+## Run tests
+
+Tests also use PostgreSQL. Start the separate test database:
+
+```powershell
+docker compose up -d test-db
+```
+
+Set `TEST_DATABASE_URL` in `.env` to the `postgresql+psycopg2` URL for that
+database, using port `5433` and a database name ending in `_test`. The test
+fixture refuses any other database name because it drops and recreates the
+gallery tables. Then run:
+
+```powershell
+python -m pytest
+```
