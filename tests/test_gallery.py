@@ -56,6 +56,21 @@ def test_create_app_rejects_non_postgres_database(tmp_path):
         )
 
 
+def test_database_host_can_be_overridden_for_docker(monkeypatch, tmp_path):
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg2://user:p%40ss%3Aword@localhost:5432/gallery",
+    )
+    monkeypatch.setenv("DATABASE_HOST", "db")
+
+    app = create_app({"UPLOAD_FOLDER": str(tmp_path / "uploads")})
+    database_url = make_url(app.config["SQLALCHEMY_DATABASE_URI"])
+
+    assert database_url.host == "db"
+    assert database_url.port == 5432
+    assert database_url.password == "p@ss:word"
+
+
 def test_gallery_shows_empty_state(client):
     response = client.get("/")
 

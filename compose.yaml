@@ -14,8 +14,29 @@ services:
       timeout: 5s
       retries: 10
 
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads:/app/instance/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - flask --app app init-db && flask --app app run --host=0.0.0.0 --port=5000
+
   test-db:
     image: postgres:17-alpine
+    profiles:
+      - test
     env_file:
       - .env
     environment:
@@ -33,3 +54,4 @@ services:
 volumes:
   postgres_data:
   postgres_test_data:
+  uploads:

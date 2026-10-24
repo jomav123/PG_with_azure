@@ -43,9 +43,15 @@ class Photo(db.Model):
 def create_app(test_config: dict | None = None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
     instance_path = Path(app.instance_path)
+    database_url = os.environ.get("DATABASE_URL")
+    database_host = os.environ.get("DATABASE_HOST")
+    if database_url and database_host:
+        database_url = make_url(database_url).set(host=database_host).render_as_string(
+            hide_password=False
+        )
     app.config.from_mapping(
         SECRET_KEY="local-development-key",
-        SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL"),
+        SQLALCHEMY_DATABASE_URI=database_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         MAX_CONTENT_LENGTH=MAX_UPLOAD_BYTES,
         UPLOAD_FOLDER=str(instance_path / "uploads"),
