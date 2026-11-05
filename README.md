@@ -23,6 +23,20 @@ Stop the containers without deleting saved database data or uploaded images:
 docker compose down
 ```
 
+## Access the database once the cointainer is running
+
+```powershell
+docker compose exec db psql -U postgres -d photo_gallery
+```
+
+To see records: 
+docker compose exec db psql -U postgres -d photo_gallery -c "SELECT id, title, filename FROM photo;"
+
+
+To quit : \q
+
+
+
 ## Run locally without containerizing the app
 
 1. Create and activate a virtual environment once per terminal session:
