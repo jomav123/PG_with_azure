@@ -95,3 +95,12 @@ gallery tables. Then run:
 ```powershell
 python -m pytest
 ```
+
+## Pushing through github
+
+git add .
+git status
+git commit -m "Publish photo gallery app"
+git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
+git push -u origin main
+note: Whether both local and remonte have the same folder's name it would lead to conflict
