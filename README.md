@@ -1,1 +1,1 @@
-# PG_with_azure
+# PhotoGallery_with_azure
