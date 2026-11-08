@@ -105,9 +105,54 @@ git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
 git push -u origin main
 note: Whether both local and remonte have the same folder's name it would lead to conflict
 
-## azure database connections
-export PGHOST=photogallery.postgres.database.azure.com
-export PGUSER=jopostgre
-export PGPORT=5432
-export PGDATABASE=postgres
-export PGPASSWORD="azertyUIOP1234" 
+## Connect to Azure Database for PostgreSQL
+
+In the Azure portal, open your PostgreSQL Flexible Server and copy its server
+host name from **Overview**. Confirm that the database exists, and note the
+database name and login username. In **Networking**, allow your current public
+IP address if the server uses public access. If the server is private, run this
+app from a machine that can reach its virtual network.
+
+Put the connection settings in the root `.env` file (which is ignored by Git).
+Use your own values; URL-encode any special characters in the password:
+
+```dotenv
+DATABASE_URL=postgresql+psycopg://<user>:<url-encoded-password>@<server-host>.postgres.database.azure.com:5432/<database>?sslmode=require
+```
+
+For example, replace each value in angle brackets with the corresponding value
+from your Azure server. Do not put database passwords in `README.md`, source
+files, or commits.
+
+To run the app directly on your computer, activate the virtual environment,
+install requirements if needed, initialize the gallery table, and start Flask:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+flask --app app init-db
+python app.py
+```
+
+To run the app container against Azure instead, also add the Azure host name to
+`.env`:
+
+```dotenv
+DATABASE_HOST=<server-host>.postgres.database.azure.com
+```
+
+Then start the app with Docker Compose:
+
+```powershell
+docker compose up --build -d
+```
+
+Compose defaults `DATABASE_HOST` to the local `db` service, preserving the
+existing local setup. Setting it as above makes the app use the Azure host.
+The local database container may still start, but the app will connect to
+Azure. Ensure the Azure server's firewall/network rules permit the machine
+running the app.
+
+The README previously contained a database password. Rotate that password in
+Azure before connecting, and if the README was pushed to a remote repository,
+remove the exposed value from its history as well.

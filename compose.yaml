@@ -20,7 +20,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_HOST: db
+      DATABASE_HOST: ${DATABASE_HOST:-db}
     ports:
       - "5000:5000"
     volumes:
