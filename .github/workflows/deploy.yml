@@ -12,10 +12,10 @@ uses: actions/checkout@v4
 - name: Log in to ACR
 uses: azure/docker-login@v1
 with:
-login-server: cacaproject.azurecr.io
+login-server: galleryproject.azurecr.io
 username: ${{ secrets.REGISTRY_USERNAME }}
 password: ${{ secrets.REGISTRY_PASSWORD }}
 - name: Build and push Docker image
 run: |
-docker build -t cacaproject.azurecr.io/pizzawsb-app:${{ github.sha }} .
-docker push cacaproject.azurecr.io/pizzawsb-app:${{ github.sha }}
+docker build -t galleryproject.azurecr.io/pgwsb-app:${{ github.sha }} .
+docker push galleryproject.azurecr.io/pgwsb-app:${{ github.sha }}
