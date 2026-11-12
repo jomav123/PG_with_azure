@@ -78,6 +78,13 @@ def test_gallery_shows_empty_state(client):
     assert b"Your gallery starts here" in response.data
 
 
+def test_health_checks_database_connection(client):
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json == {"status": "ok"}
+
+
 def test_add_photo(client, tmp_path):
     response = client.post(
         "/photos/new",

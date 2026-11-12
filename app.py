@@ -6,10 +6,19 @@ from pathlib import Path
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from flask import Flask, flash, redirect, render_template, request, send_from_directory, url_for
+from flask import (
+    Flask,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    url_for,
+)
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-from sqlalchemy import String, Text
+from sqlalchemy import String, Text, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -64,6 +73,11 @@ def create_app(test_config: dict | None = None) -> Flask:
     Path(app.config["UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
     db.init_app(app)
     csrf.init_app(app)
+
+    @app.get("/health")
+    def health():
+        db.session.execute(text("SELECT 1"))
+        return jsonify(status="ok")
 
     @app.get("/")
     def index():

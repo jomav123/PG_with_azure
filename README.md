@@ -79,6 +79,10 @@ persistently in Docker's `uploads` volume when containerized, or in
 `instance/uploads/` when run locally. Supported image types are JPG, PNG, GIF,
 and WEBP, up to 16 MB each.
 
+The container image starts the app with Gunicorn listening on `0.0.0.0:5000`.
+For Azure Container Apps, configure the ingress target port as `5000` and use
+`/health` to verify the app can reach its configured PostgreSQL database.
+
 ## Run tests
 
 Tests also use PostgreSQL. Start the separate test database:
