@@ -3,3 +3,9 @@ __pycache__/
 .pytest_cache/
 instance/
 .env
+# Terraform local data and state
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
