@@ -51,7 +51,7 @@ resource "azurerm_container_app" "gallery" {
         failure_count_threshold = 240
         initial_delay           = 1
         interval_seconds        = 1
-        timeout                 = 1
+        timeout                 = 3
       }
       env {
         name        = "DATABASE_URL"
